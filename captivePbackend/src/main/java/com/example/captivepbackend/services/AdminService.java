@@ -1,11 +1,10 @@
 package com.example.captivepbackend.services;
 
-import com.example.captivepbackend.dtos.AdminResponseDTO;
+import com.example.captivepbackend.dtos.AdminResponse;
 import com.example.captivepbackend.entities.Admin;
 import com.example.captivepbackend.repositories.AdminRepo;
 import lombok.Data;
 import org.springframework.stereotype.Service;
-
 import java.util.NoSuchElementException;
 
 @Service
@@ -13,43 +12,36 @@ import java.util.NoSuchElementException;
 public class AdminService {
     private final AdminRepo adminRepo;
 
-    public AdminResponseDTO saveAdmin(Admin admin) {
-        try{
-            admin.setLoggedIn(true);
-            admin.setStatus("Success");
-            return AdminResponseDTO.fromAdmin(adminRepo.save(admin));
-        }catch(Exception e) {
-            admin.setStatus("Error: "+e);
-            return AdminResponseDTO.fromAdmin(admin);
-        }
+    public AdminResponse saveAdmin(Admin admin) {
+        return AdminResponse.fromAdmin(adminRepo.save(admin));
     }
 
-    public AdminResponseDTO loginAdmin(Admin admin) {
-        try{
-            Admin user = adminRepo.findByUserName(admin.getUserName()).orElseThrow(() -> new NoSuchElementException("Admin not found with userName: " + admin.getUserName()));
+    public AdminResponse loginAdmin(Admin admin) {
+        Admin user = adminRepo.findByUserName(admin.getUserName()).orElseThrow(() -> new NoSuchElementException("Admin not found with userName: " + admin.getUserName()));
+        if(!user.isLoggedIn()){
             if(user.getPassword().equals(admin.getPassword())){
                 user.setLoggedIn(true);
                 user.setStatus("Success");
-                return AdminResponseDTO.fromAdmin(adminRepo.save(user));
+                return AdminResponse.fromAdmin(adminRepo.save(user));
             }
             user.setLoggedIn(false);
             user.setStatus("Incorrect Password");
-            return AdminResponseDTO.fromAdmin(user);
-        }catch (Exception e){
-            admin.setStatus("Error: "+e);
-            return AdminResponseDTO.fromAdmin(admin);
+            return AdminResponse.fromAdmin(user);
         }
+        user.setLoggedIn(false);
+        user.setStatus("Account is in use. One device Per time");
+        return AdminResponse.fromAdmin(user);
     }
 
-    public AdminResponseDTO logoutAdmin(Admin admin) {
-        try{
-            Admin user = adminRepo.findByUserName(admin.getUserName()).orElseThrow(() -> new NoSuchElementException("Admin not found with userName: " + admin.getUserName()));
-            user.setLoggedIn(false);
-            user.setStatus("Pending");
-            return AdminResponseDTO.fromAdmin(adminRepo.save(user));
-        }catch (Exception e){
-            admin.setStatus("Error: "+e);
-            return AdminResponseDTO.fromAdmin(admin);
-        }
+    public AdminResponse logoutAdmin(Admin admin) {
+        Admin user = adminRepo.findByUserName(admin.getUserName()).orElseThrow(() -> new NoSuchElementException("Admin not found with userName: " + admin.getUserName()));
+        user.setLoggedIn(false);
+        user.setStatus("Pending");
+        return AdminResponse.fromAdmin(adminRepo.save(user));
+    }
+
+    public AdminResponse getAdminDetailsByName(String name) {
+        Admin user = adminRepo.findByUserName(name).orElseThrow(() -> new NoSuchElementException("Admin not found with userName: " + name));
+        return AdminResponse.fromAdmin(adminRepo.save(user));
     }
 }

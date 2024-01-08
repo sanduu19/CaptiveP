@@ -15,10 +15,10 @@ export default function AdminHeader() {
         color: "#161616"
     }
 
-    const handleLogout = (e:MouseEvent) => {
+    const handleLogout = async (e: MouseEvent) => {
         e.preventDefault()
-        dispatch(adminLogoutAPI(admin));
-        dispatch(resetAdminState());
+        await dispatch(adminLogoutAPI(admin));
+        await dispatch(resetAdminState());
         navigate("/");
     }
 

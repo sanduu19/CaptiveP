@@ -1,12 +1,25 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {useAppDispatch, useAppSelector} from "../app/hooks";
 import {addField, addInputForField, FieldState, Field, selectFields} from "../features/fields/fieldSlice";
 import {saveFieldsAPI, saveFieldValuesAPI} from "../features/fields/fieldAPIs";
-import {adminLogoutAPI} from "../features/admin/adminAPIs";
+import {adminLogoutAPI, getAdminDetailsAPI} from "../features/admin/adminAPIs";
 import {AdminState, resetAdminState, selectAdmin} from "../features/admin/adminSlice";
-import {useNavigate} from "react-router-dom";
+import {useLoaderData, useNavigate} from "react-router-dom";
+import {isLoggedIn} from "./MainLayout";
+import axios from "axios";
+
+export async function loader() {
+    const adminName = localStorage.getItem("AdminName");
+    const response = await axios.post("http://localhost:8080/admin/get", adminName);
+    const { id, userName, email, status, isLoggedIn } =  response.data;
+    if (isLoggedIn){
+        return "LoggedIn"
+    }
+    return "Wrong Authentication"
+}
 
 const AdminPanel = () => {
+    const loggedIn = useLoaderData();
     const fields = useAppSelector<FieldState>(selectFields);
     const admin = useAppSelector<AdminState>(selectAdmin);
     const dispatch = useAppDispatch();
@@ -14,6 +27,23 @@ const AdminPanel = () => {
     const [nextField, setNextField] = useState<Field>({name:"",data:[]});
     const [nextFieldValues, setNextFieldValues] = useState<Record<string, string>>({});
 
+    useEffect(() => {
+        if (loggedIn === "LoggedIn") {
+            console.log(loggedIn);
+            dispatch(getAdminDetailsAPI(localStorage.getItem("AdminName")))
+                .then(response => {
+                    console.log(response);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        } else {
+            dispatch(resetAdminState());
+            localStorage.setItem("IsLoggedIn", "LoggedOut");
+            localStorage.setItem("AdminName", "");
+            navigate("/");
+        }
+    }, [isLoggedIn]);
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             console.log(e.target.files)

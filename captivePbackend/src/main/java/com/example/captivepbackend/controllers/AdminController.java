@@ -1,9 +1,11 @@
 package com.example.captivepbackend.controllers;
 
-import com.example.captivepbackend.dtos.AdminResponseDTO;
+import com.example.captivepbackend.dtos.AdminResponse;
 import com.example.captivepbackend.entities.Admin;
 import com.example.captivepbackend.services.AdminService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController()
@@ -12,33 +14,24 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AdminController {
     private final AdminService adminService;
+
     @PostMapping(path = "/registration")
-    public AdminResponseDTO registration(@RequestBody Admin admin){
-        try {
-            return adminService.saveAdmin(admin);
-        }catch (Exception e){
-            admin.setStatus("Error: "+e);
-            return AdminResponseDTO.fromAdmin(admin);
-        }
+    public ResponseEntity<AdminResponse>  registration(@RequestBody Admin admin){
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.saveAdmin(admin));
     }
 
     @PostMapping(path = "/login")
-    public AdminResponseDTO login(@RequestBody Admin admin){
-        try {
-            return adminService.loginAdmin(admin);
-        }catch (Exception e){
-            admin.setStatus("Error: "+e);
-            return AdminResponseDTO.fromAdmin(admin);
-        }
+    public ResponseEntity<AdminResponse> login(@RequestBody Admin admin){
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.loginAdmin(admin));
     }
 
     @PostMapping(path = "/logout")
-    public AdminResponseDTO logout(@RequestBody Admin admin){
-        try {
-            return adminService.logoutAdmin(admin);
-        }catch (Exception e){
-            admin.setStatus("Error: "+e);
-            return AdminResponseDTO.fromAdmin(admin);
-        }
+    public ResponseEntity<AdminResponse> logout(@RequestBody Admin admin){
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.logoutAdmin(admin));
+    }
+
+    @PostMapping(path = "/get")
+    public ResponseEntity<AdminResponse> getAdminDetailsByName(@RequestBody String name){
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.getAdminDetailsByName(name));
     }
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useAppDispatch, useAppSelector} from "../app/hooks";
 import {
     AdminState,
@@ -6,26 +6,33 @@ import {
     updateAdmin,
 } from "../features/admin/adminSlice";
 import {adminRegistrationAPI} from "../features/admin/adminAPIs";
-import {useNavigate} from "react-router-dom";
+import {redirect, useLoaderData, useNavigate} from "react-router-dom";
 import {isLoggedIn} from "./MainLayout";
 
 export function loader() {
-    isLoggedIn();
+    return isLoggedIn();
 }
 
 const Registration = () => {
+    const isLoggedIn = useLoaderData();
     const admin = useAppSelector<AdminState>(selectAdmin);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        console.log(isLoggedIn);
+    }, [isLoggedIn]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         dispatch(updateAdmin({ field: name, value }));
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        dispatch(adminRegistrationAPI(admin));
+        await dispatch(adminRegistrationAPI(admin));
+        console.log(localStorage.getItem("IsLoggedIn"));
+        console.log(localStorage.getItem("AdminName"));
         navigate('/admin');
     };
 

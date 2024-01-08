@@ -41,3 +41,15 @@ export const adminLogoutAPI = createAsyncThunk<AdminResponse>(
         }
     },
 )
+
+export const getAdminDetailsAPI = createAsyncThunk<AdminResponse>(
+    "admin/adminDetails",
+    async (info: string) => {
+        try {
+            const response = await axios.post("http://localhost:8080/admin/get", info);
+            return response.data
+        } catch (error) {
+            return error
+        }
+    },
+)

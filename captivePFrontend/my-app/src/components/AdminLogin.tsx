@@ -1,18 +1,24 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useAppDispatch, useAppSelector} from "../app/hooks";
 import {AdminState, selectAdmin, updateAdmin} from "../features/admin/adminSlice";
 import {adminLoginAPI} from "../features/admin/adminAPIs";
-import {useNavigate} from "react-router-dom";
+import {redirect, useLoaderData, useNavigate} from "react-router-dom";
 import {isLoggedIn} from "./MainLayout";
+import {getAllFieldsAPI} from "../features/fields/fieldAPIs";
 
 export function loader() {
-    isLoggedIn();
+    return isLoggedIn();
 }
 
 const Login = () => {
+    const isLoggedIn = useLoaderData();
     const admin = useAppSelector<AdminState>(selectAdmin);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+
+    useEffect(() => {
+       console.log(isLoggedIn);
+    }, [isLoggedIn]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
